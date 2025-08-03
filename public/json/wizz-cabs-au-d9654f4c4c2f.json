@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "wizz-cabs-au",
+  "private_key_id": "d9654f4c4c2f89c272f089bad0f5c10d6d5ce555",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCrOaDX1U6b+qyw\n6R0/MrOpF/8Y0EkBfZS1m4mweXRuTgBC2sMOu9OfGXHMnFcHfHbZQTC7HrBao72t\nvmFXgndTT7TxJ3M2XhY0X6QClWjVg42Rx5iq0HSxkS+fGnHb68aOU1Bl/eBwdg11\nhzmv5E+dU2LJPju5UUBLqf/CSKA2S2USy+f8+0Q6o670YMXYq/23lTmEnvY7tK7m\nPHgaD8dfndE9mz3oUFYg7Mhu+baymQZRhaI+QncXOhMl25/ODGhR6XKJbCoTPWct\nrzJrD1zIMw5aXi/o6z52jsrZu1p8h4ImQ9sO731oEzlDcK5VrFZzCnya4XgNUbEf\n7/JVeiTlAgMBAAECggEAK2tqsTDDRWSU5CvJIdyOmKOgKb+vs7QPwNnXWawC7XHU\nOR/WdOcGbAL8y6EdpKVYUhFo9Rp8KA/7qpJrhtBrx/GfdcPGQJQtV0ylf445zmMU\nxFH0EeTYoqqpg9Ql6VnpuO/BpItznbEiCpqm80aXNdMOau/gH0dOYaGTXMYj8oBT\nPXPaHy2/FkE78upwScf4hP2YG7O1M3CWFq2GIkVF4UNebCPTDAoM9YsynrYBKNqL\nnfmeykB/uTMReHT9CTldfY3sQzlMaYgm6t4goPLe9r5JK3sK1pdGzU12OcAatCyz\nQkJiPYQxJH6yvmdxRaCSLtwy9lwFhatgBQJ+/PTv5QKBgQDn2u/7XKQWatzdhs78\n6pnPDNaerYFkWXQjCItRmhsGQoFaxrsdV632M92+gDwNSddly10DYfiuOZ52shJ2\nUCT0jKofCTqSi/Gp1rc8VuyIFFsD6up0/+wpi6WDeCx7hmj0j/FcLlK5s3qOufkT\nfhYVJtyly4+a4CiAWdW+Zs94JwKBgQC9Dlf+waVpfKbCVGifQjQ4et3zWPGXwB65\n73ln8H3o5OXgKL4I/7Yfa4n9z510MLyBcjD9Etw/LGcehBtlkHmoEYmLtTijHW40\n+5NdeDFvbUI45chiyghRbmVtaRH3xeX/hCal4cq0Yhwuq+CC7xiPlvmrFaO5EvXO\nsLatYuQ2EwKBgF67JJxmQKDsLqvQfdf2nrtrOnGA4MI4jmwV/J5twabwG1wUoLUf\ncvOKQ4qnaGHhjsGHssxEBlBhOG602ThADKlio8ukgKsJxMao9RsRRPlgn8NdA0ik\nnEBpT0oFGt+pjk6GVY5dWu2G+IdCUxN0y97+jt6q6lTUS5gNnHh8Fz63AoGAI/a9\nkI3f3JBE3MTX3ivm6TOeUzOBSd/XOIGws7ARE6OvgxPdCrMyPwnjBzBegILg6TMC\n1LGoyi+1Mh3pZEm2it1DMBt6ObVYiKWu4+IAbXT4WwCDPR+3s13v139cVqkD1raZ\n74ZjXCspt0sk+2NmZbJPrlcAfS15Kyd8qMEeLpcCgYBNE7I/aCOuUY3uKm/d2WjP\nbXgUSZZdefHuCXQKYYNAGGezaXKpswFdu5d17xs3l1udX2w8QCWXKr3IgjvP+NwX\n9v8Q+d82i93o4gh1IWR6sL1XsLXLVBguDcogRZEH6xbun0W2qPv9qigvcvfsul9R\n93yrT6PQEIg0OekElwEIEA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@wizz-cabs-au.iam.gserviceaccount.com",
+  "client_id": "102593301664600425708",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40wizz-cabs-au.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

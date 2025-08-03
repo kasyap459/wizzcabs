@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400');
+
+body, html {
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color: #db8785;
+  padding: 0;
+  margin: 0;
+  background-image: url(../img/login-register.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.container{
+  margin: 0;
+  top: 135px;
+  left: 50%;
+  position: absolute;
+  text-align: center;
+  transform: translateX(-50%);
+  background-color: rgb(245, 245, 245);
+  border-radius: 9px;
+  border-top: 10px solid #f5f3f5;
+  border-bottom: 10px solid #db8785;
+  width: 453px;
+  height: 470px;
+  box-shadow: 1px 1px 108.8px 19.2px rgb(25,31,53);
+}
+
+.box h4 {
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #c20a12; 
+  font-size: 18px;
+  margin-top:25px;
+}
+
+.box h4 span {
+  color: #ce5312;
+  font-weight: lighter;
+}
+
+.box h5 {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 13px;
+  color: #a1a4ad;
+  letter-spacing: 1.5px;
+  margin-top: -15px;
+  margin-bottom: 35px;
+}
+
+.box input[type = "text"],.box input[type = "password"] {
+  display: block;
+  margin: 20px auto;
+  background: #e8e8e8;
+  border: 0;
+  border-radius: 5px;
+  padding: 14px 10px;
+  width: 320px;
+  outline: none;
+  border: 1px solid #e8e8e8;
+  color: #565f79;
+}
+::-webkit-input-placeholder {
+  color: #565f79;
+}
+
+.box input[type = "text"]:focus,.box input[type = "password"]:focus {
+  border: 1px solid #5c0971;
+}
+
+a{
+  color: #505050;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+ label input[type = "checkbox"] {
+  display: none; /* hide the default checkbox */
+}
+
+/* style the artificial checkbox */
+label span {
+  height: 13px;
+  width: 13px;
+  border: 2px solid #464d64;
+  border-radius: 2px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  float: left;
+  left: 11.5%;
+}
+
+.btn1 {
+  border: 0;
+    background: #ce5358;
+    color: #dfdeee;
+    border-radius: 50px;
+    width: 131px;
+    height: 44px;
+    font-size: 13px;
+    position: absolute;
+    top: 87%;
+    left: 36%;
+    transition: 0.3s;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn1:hover {
+    background: #110f31;
+    border: 2px solid #fff;
+    color: white;
+}
+.btn2{
+  border: 0;
+    background: #632577;
+    color: #dfdeee;
+    border-radius: 50px;
+    width: 192px;
+    height: 44px;
+    font-size: 13px;
+    position: absolute;
+    top: 68%;
+    left: 28%;
+    transition: 0.3s;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn2:hover {
+    background: #040404;
+    border: 2px solid #fff;
+    color: white;
+}
+.btn3{
+    border: 0;
+    background: #632577;
+    color: #dfdeee;
+    border-radius: 50px;
+    width: 131px;
+    height: 36px;
+    font-size: 13px;
+    position: absolute;
+    top: 90%;
+    left: 36%;
+    transition: 0.3s;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn3:hover {
+    background: #040404;
+    border: 2px solid #fff;
+    color: white;
+}
+.rmb {
+  position: absolute;
+  margin-left: -154px;
+  margin-top: 1px;
+  color: #7e7d84;
+  font-size: 13px;
+}
+
+.forgetpass {
+  position: relative;
+  float: right;
+  right: 50px;
+}
+.forgetpass1{
+  position: relative;
+  float: none;
+  right: 2px;
+  top: 57px;
+}
+.dnthave{
+    position: absolute;
+    top: 92%;
+    left: 24%;
+}
+
+[type=checkbox]:checked + span:before {/* <-- style its checked state */
+    font-family: FontAwesome;
+    font-size: 16px;
+    content: "\f00c";
+    position: absolute;
+    top: -4px;
+    color: #896cec;
+    left: -1px;
+    width: 13px;
+}
+
+.typcn {
+  position: absolute;
+  left: 353px;
+  top: 250px;
+  color: #3b476b;
+  font-size: 22px;
+  cursor: pointer;
+}      
+
+.typcn.active {
+  color: #7f60eb;
+}
+
+.error {
+  text-align: center;
+  width: 332px;
+  height: 20px;
+  padding: 2px;
+  border: 0;
+  border-radius: 5px;
+  margin: 10px auto 10px;
+  position: absolute;
+  top: 46%;
+  left: 11.2%;
+  color: #ff3333;
+  display: block;
+}
+
+.footer {
+    position: relative;
+    left: 0;
+    bottom: 0;
+    top: 605px;
+    width: 100%;
+    color: #78797d;
+    font-size: 14px;
+    text-align: center;
+}
+
+.footer .fa {
+  color: #7f5feb;;
+}
+
+.topsection{
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.topbutton{
+    padding: 9px 19px;
+    background-color: #d7c67c;
+    border-radius: 5px;
+    margin-right: 5px;
+    color: white;
+    font-size: 13px;
+}
+.topbutton:hover{
+  text-decoration: none;
+  background-color: #4a4a58;
+}
+.active{
+  background-color:#14123a;
+}
+.remember{
+  position: relative;
+  float: left;
+  left: 56px;
+}
