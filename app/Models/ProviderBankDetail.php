@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProviderDocument extends Model
+class ProviderBankDetail extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -13,13 +13,15 @@ class ProviderDocument extends Model
      */
     protected $fillable = [
         'provider_id',
-        'document_id',
-        'url',
-        'back_url',
-        'unique_id',
-        'status',
-        'expires_at',
-        'document_type'
+        'account_holder_name',
+        'bank_name',
+        'branch_name',
+        'bank_address',
+        'account_number', 
+        'iban',
+        'swift_bic',
+        'routing_number',
+        'account_type'
     ];
 
     /**
@@ -28,8 +30,7 @@ class ProviderDocument extends Model
      * @var array
      */
     protected $hidden = [
-        'created_at',
-        'updated_at'
+         'created_at', 'updated_at'
     ];
 
     /**
@@ -38,12 +39,5 @@ class ProviderDocument extends Model
     public function provider()
     {
         return $this->belongsTo('App\Models\Provider');
-    }
-    /**
-     * The services that belong to the user.
-     */
-    public function document()
-    {
-        return $this->belongsTo('App\Models\DriverDocList');
     }
 }

@@ -13,13 +13,15 @@ class CreateWebNotifiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('web_notifies', function (Blueprint $table) {
-            $table->id();
-            $table->string('type');
-            $table->string('title');
-            $table->integer('status')->default(0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('web_notifies')) {
+            Schema::create('web_notifies', function (Blueprint $table) {
+                $table->id();
+                $table->string('type');
+                $table->string('title');
+                $table->integer('status')->default(0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -29,6 +31,8 @@ class CreateWebNotifiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('web_notifies');
+        if (Schema::hasTable('web_notifies')) {
+            Schema::dropIfExists('web_notifies');
+        }
     }
 }

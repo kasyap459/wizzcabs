@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\ProviderResources;
 
+use App\Helpers\Helper;
+use App\Models\ProviderBankDetail;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DateTimeZone;
@@ -25,7 +27,7 @@ use App\Models\DriverLogin;
 
 class ProfileController extends Controller
 {
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -34,20 +36,46 @@ class ProfileController extends Controller
     public function index()
     {
         //try {
-         
-            $provider = Provider::where('id',Auth::user()->id)->select('id','name','email','mobile','avatar','account_status')->first();
-            $vehicle = Vehicle::where('id','=',Auth::user()->mapping_id)->select('vehicle_no','service_type_id')->first();
 
-            if($vehicle != null){
-                $provider['service_type'] = ServiceType::where('id',$vehicle->service_type_id)->pluck('name')->first();
-                $provider['vehicle'] = $vehicle->vehicle_no;
+        $provider = Provider::where('id', Auth::user()->id)->select('id', 'name', 'email', 'mobile', 'avatar', 'account_status')->first();
+        $vehicle = Vehicle::where('id', '=', Auth::user()->mapping_id)->select('vehicle_no', 'service_type_id')->first();
+
+        if ($vehicle != null) {
+            $provider['service_type'] = ServiceType::where('id', $vehicle->service_type_id)->pluck('name')->first();
+            $provider['vehicle'] = $vehicle->vehicle_no;
+        }
+
+        $provider->avatar = $provider->avatar;
+        $provider->currency = Setting::get('currency');
+        $provider->contact_number = Setting::get('contact_number');
+        $provider->sos_number = Setting::get('sos_number');
+
+        $providerId = $provider->id;
+
+        $provider = json_decode(json_encode($provider), true);
+
+        $provider['documents'] = [];
+
+        $providerDocumentTypes = Helper::PROVIDER_DOCUMENT_TYPES;
+        foreach ($providerDocumentTypes as $providerDocumentType) {
+            $document = ProviderDocument::where('provider_id', $providerId)
+                ->where('document_type', $providerDocumentType)->first();
+            if ($document != null) {
+                $provider['documents'][$providerDocumentType] = $document;
+            } else {
+                $provider['documents'][$providerDocumentType] = null;
             }
-            $provider->avatar = $provider->avatar;
-            $provider->currency = Setting::get('currency');
-            $provider->contact_number = Setting::get('contact_number');
-            $provider->sos_number = Setting::get('sos_number');
+        }
 
-            return $provider;
+        $bankDetails = ProviderBankDetail::where('provider_id', $providerId)->first();
+        if ($bankDetails != null) {
+            $provider['bankDetails'] = $bankDetails;
+        } else {
+            $provider['bankDetails'] = null;
+        }
+
+
+        return $provider;
 
         // } catch (Exception $e) {
         //     return $e->getMessage();
@@ -62,7 +90,7 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [  
+        $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
             'mobile' => 'required',
             'avatar' => 'mimes:jpeg,bmp,png',
@@ -73,8 +101,8 @@ class ProfileController extends Controller
             'country' => 'max:255',
             'postal_code' => 'max:255',
         ]);
-        if($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors(), 'success'=>0], 200);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
         }
 
         try {
@@ -82,26 +110,24 @@ class ProfileController extends Controller
                 //Storage::delete($Provider->avatar);
                 //$Provider->avatar = $request->avatar->store('public/provider/profile');
                 //$Provider->avatar = $request->avatar->store('provider/profile');
-                $picture=$request->avatar;
+                $picture = $request->avatar;
                 $file_name = time();
                 $file_name .= rand();
                 $file_name = sha1($file_name);
                 if ($picture) {
                     $ext = $picture->getClientOriginalExtension();
                     $picture->move(public_path() . "/uploads/provider/profile/", $file_name . "." . $ext);
-                    $local_url = $file_name . "." . $ext;                    
+                    $local_url = $file_name . "." . $ext;
                     $Provider->avatar = $local_url;
                 }
             }
 
             $Provider = Auth::user();
-        }
-
-        catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Provider Not Found!'], 404);
         }
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -112,17 +138,17 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-                // 'name' => 'required|max:255',
-                // 'mobile' => 'required',
-                // 'dial_code' => 'required',
-                // 'avatar' => 'mimes:jpeg,bmp,png',
-            ]);
+            // 'name' => 'required|max:255',
+            // 'mobile' => 'required',
+            // 'dial_code' => 'required',
+            // 'avatar' => 'mimes:jpeg,bmp,png',
+        ]);
 
         try {
 
             $Provider = Auth::user();
 
-            if($request->has('name')) 
+            if ($request->has('name'))
                 $Provider->name = $request->name;
 
             if ($request->has('mobile'))
@@ -133,28 +159,26 @@ class ProfileController extends Controller
 
             if ($request->hasFile('avatar')) {
 
-                  File::delete(public_path('uploads/provider/profile/'.$Provider->avatar));
+                File::delete(public_path('uploads/provider/profile/' . $Provider->avatar));
                 // Storage::delete($Provider->avatar);
                 // $Provider->avatar = $request->avatar->store('public/provider/profile');
                 // $Provider->avatar = $request->avatar->store('provider/profile');
-                $picture=$request->avatar;
+                $picture = $request->avatar;
                 $file_name = time();
                 $file_name = rand();
                 $file_name = sha1($file_name);
                 if ($picture) {
                     $ext = $picture->getClientOriginalExtension();
                     $picture->move(public_path() . "/uploads/provider/profile/", $file_name . "." . $ext);
-                    $local_url = $file_name . "." . $ext;                    
-                    $Provider->avatar = url('/')."/uploads/provider/profile/".$local_url;
+                    $local_url = $file_name . "." . $ext;
+                    $Provider->avatar = url('/') . "/uploads/provider/profile/" . $local_url;
                 }
             }
 
             $Provider->save();
 
             return $Provider;
-        }
-
-        catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Provider Not Found!'], 404);
         }
     }
@@ -168,33 +192,32 @@ class ProfileController extends Controller
     public function available(Request $request)
     {
         $validator = Validator::make($request->all(), [
-                'service_status' => 'required|in:active,offline',
-            ]);
-            if($validator->fails()) { 
-                return response()->json(['message'=>$validator->errors(), 'success'=>0], 200);
-            }
+            'service_status' => 'required|in:active,offline',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+        }
 
         $Provider = Auth::user();
-        if(Auth::user()->admin_id !=  null){
-            $admin = Admin::where('id','=',Auth::user()->admin_id)->first();
-            if($admin->admin_type != 0 && $admin->time_zone != null){
-                 date_default_timezone_set($admin->time_zone);
-             }
-         }
-         if($Provider->status =='riding'){
-            if($Provider->account_status == 'approved') {
+        if (Auth::user()->admin_id != null) {
+            $admin = Admin::where('id', '=', Auth::user()->admin_id)->first();
+            if ($admin->admin_type != 0 && $admin->time_zone != null) {
+                date_default_timezone_set($admin->time_zone);
+            }
+        }
+        if ($Provider->status == 'riding') {
+            if ($Provider->account_status == 'approved') {
                 $Provider->update(['status' => 'riding']);
             } else {
                 return response()->json(['error' => 'Su cuenta no ha sido aprobada para conducir.']);
             }
-         }
-         else{
-            if($Provider->account_status == 'approved') {
-                $Provider->update(['status' => $request->service_status, 'active_from' =>Carbon::now()]);
+        } else {
+            if ($Provider->account_status == 'approved') {
+                $Provider->update(['status' => $request->service_status, 'active_from' => Carbon::now()]);
             } else {
                 return response()->json(['error' => 'Su cuenta no ha sido aprobada para conducir.']);
             }
-         }
+        }
 
         return $Provider;
     }
@@ -207,26 +230,25 @@ class ProfileController extends Controller
      */
     public function password(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'password' => 'required|confirmed',
             'password_old' => 'required',
         ]);
 
-        if($validator->fails()) {
-            return response()->json(['message'=>$validator->errors()->first(), 'success'=>0], 200);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first(), 'success' => 0], 200);
         }
 
         $Provider = Auth::user();
 
-        if(password_verify($request->password_old, $Provider->password))
-        {
+        if (password_verify($request->password_old, $Provider->password)) {
             $Provider->password = bcrypt($request->password);
             $Provider->save();
 
-            return response()->json(['message' => 'Password changed successfully!', 'success'=>1]);
+            return response()->json(['message' => 'Password changed successfully!', 'success' => 1]);
         } else {
-            return response()->json(['message' => 'Please enter correct password', 'success'=>0], 200);
+            return response()->json(['message' => 'Please enter correct password', 'success' => 0], 200);
         }
     }
 
@@ -243,43 +265,43 @@ class ProfileController extends Controller
             'document_id' => 'required',
             'image' => 'required|mimes:jpg,jpeg,png,pdf',
         ]);
-        if($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors(), 'success'=>0], 200);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
         }
 
         try {
-            
-            if($request->hasFile('image')) { 
+
+            if ($request->hasFile('image')) {
                 $Image = ProviderDocument::where('provider_id', Auth::user()->id)
                     ->where('document_id', $request->document_id)
                     ->first();
                 $file_name = time();
                 $file_name .= rand();
                 $file_name = sha1($file_name);
-                if($Image !=null){
+                if ($Image != null) {
                     //Storage::delete($Image->url);                   
-                    $image1=$request->image;
+                    $image1 = $request->image;
                     if ($image1) {
                         $ext = $image1->getClientOriginalExtension();
                         $image1->move(public_path() . "/uploads/provider/documents/", $file_name . "." . $ext);
                         $local_url = $file_name . "." . $ext;
-                        $s3_url = '/uploads/provider/documents/'.$local_url;
+                        $s3_url = '/uploads/provider/documents/' . $local_url;
 
 
                         $Image->update([
-                            'url' => url('/').$s3_url,
+                            'url' => url('/') . $s3_url,
                             'status' => 'ASSESSING',
                         ]);
                     }
-                }else{
-                    $image1=$request->image;                   
+                } else {
+                    $image1 = $request->image;
                     $ext = $image1->getClientOriginalExtension();
                     $image1->move(public_path() . "/uploads/provider/documents/", $file_name . "." . $ext);
                     $local_url = $file_name . "." . $ext;
-                    $s3_url = '/uploads/provider/documents/'.$local_url;                    
+                    $s3_url = '/uploads/provider/documents/' . $local_url;
 
                     ProviderDocument::create([
-                        'url' => url('/').$s3_url,
+                        'url' => url('/') . $s3_url,
                         'provider_id' => Auth::user()->id,
                         'document_id' => $request->document_id,
                         'status' => 'ASSESSING',
@@ -287,11 +309,122 @@ class ProfileController extends Controller
                 }
                 return response()->json(['message' => 'Documents have been uploaded!']);
             }
-                
+
         } catch (ModelNotFoundException $e) {
             return $e;
         }
     }
+
+    public function saveBankDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'account_holder_name' => 'required|string|max:255',
+            'bank_name' => 'required|string|max:255',
+            'branch_name' => 'nullable|string|max:255',
+            'bank_address' => 'nullable|string|max:500',
+            'account_number' => 'required|string|max:50',
+            'iban' => 'nullable|string|max:34',
+            'swift_bic' => 'nullable|string|max:11',
+            'routing_number' => 'nullable|string|max:20',
+            'account_type' => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+                'success' => 0
+            ], 422); // 422 Unprocessable Entity
+        }
+
+        try {
+            $providerId = Auth::user()->id;
+
+            $bankDetail = ProviderBankDetail::updateOrCreate(
+                ['provider_id' => $providerId],
+                [
+                    'account_holder_name' => $request->account_holder_name,
+                    'bank_name' => $request->bank_name,
+                    'branch_name' => $request->branch_name,
+                    'bank_address' => $request->bank_address,
+                    'account_number' => $request->account_number,
+                    'iban' => $request->iban,
+                    'swift_bic' => $request->swift_bic,
+                    'routing_number' => $request->routing_number,
+                    'account_type' => $request->account_type,
+                ]
+            );
+
+            return response()->json([
+                'message' => 'Bank details saved successfully!',
+                'bankDetail' => $bankDetail,
+                'success' => 1
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error saving bank details!',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
+        }
+    }
+
+    public function uploadDocument(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'document_type' => 'required',
+            'expires_at' => 'required|date|after:today',
+            'file' => 'required|mimes:jpg,jpeg,png,pdf',
+            'back_file' => 'nullable|mimes:jpg,jpeg,png,pdf'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+        }
+
+        try {
+
+            $providerId = Auth::user()->id;
+
+            if ($request->hasFile('file')) {
+
+                $documentModel = ProviderDocument::where('provider_id', $providerId)
+                    ->where('document_type', $request->document_type)
+                    ->first();
+
+                if ($documentModel == null) {
+                    $documentModel = new ProviderDocument();
+                    $documentModel->provider_id = $providerId;
+                    $documentModel->document_type = $request->document_type;
+                    $documentModel->document_id = 0;
+                }
+
+                $frontUrl = Helper::uploadFile($request->file);
+                $documentModel->url = $frontUrl;
+
+                if ($request->hasFile('back_file')) {
+                    $backUrl = Helper::uploadFile($request->back_file);
+                    $documentModel->back_url = $backUrl;
+                } else {
+                    $documentModel->back_url = null;
+                }
+
+                $documentModel->expires_at = $request->expires_at;
+                $documentModel->status = 'ACTIVE';
+                $documentModel->save();
+
+                return response()->json([
+                    'message' => 'Documents have been uploaded!',
+                    'document' => $documentModel
+                ]);
+            }
+
+        } catch (ModelNotFoundException $e) {
+            return $e;
+        }
+    }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -302,28 +435,28 @@ class ProfileController extends Controller
     public function destroy_document(Request $request)
     {
         $validator = Validator::make($request->all(), [
-                'document_id' => 'required',
+            'document_id' => 'required',
         ]);
-        if($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors(), 'success'=>0], 200);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
         }
 
         try {
-            
+
             $Document = ProviderDocument::where('provider_id', Auth::user()->id)
-            ->where('document_id', $request->document_id)
-            ->first();
-            if($Document !=null){
+                ->where('document_id', $request->document_id)
+                ->first();
+            if ($Document != null) {
                 Storage::delete($Document->url);
                 $Document->delete();
                 return response()->json(['message' => 'Documents successfully deleted!']);
-            }else{
+            } else {
                 return response()->json(['message' => 'Documents not found']);
             }
-            
+
 
         } catch (ModelNotFoundException $e) {
-           return $e;
+            return $e;
         }
     }
     /**
@@ -336,14 +469,14 @@ class ProfileController extends Controller
 
     public function get_documents(Request $request)
     {
-        
+
         try {
             $documents = DriverDocList::get();
 
-            foreach($documents as $key => $document){
-                $doc =  ProviderDocument::where('provider_id', Auth::user()->id)
-                        ->where('document_id', $document->id)->first();
-                if($doc !=null){
+            foreach ($documents as $key => $document) {
+                $doc = ProviderDocument::where('provider_id', Auth::user()->id)
+                    ->where('document_id', $document->id)->first();
+                if ($doc != null) {
                     $documents[$key]->url = $doc->url;
                     $documents[$key]->status = $doc->status;
                     $documents[$key]->created_at = $doc->created_at;
@@ -352,15 +485,15 @@ class ProfileController extends Controller
 
             return $documents;
 
-        }catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Please Upload Document!'], 500);
         }
     }
 
     public function provider_wallet_history()
     {
-        $data = ProviderWallet::where('provider_id',Auth::user()->id)->select('amount','mode','created_at as created')->orderBy('created_at', 'DESC')->get()->toArray();
-        return response()->json(['data' => $data , 'currency' => Setting::get('currency') ,'wallet_balance' => Auth::user()->wallet_balance ], 200);
+        $data = ProviderWallet::where('provider_id', Auth::user()->id)->select('amount', 'mode', 'created_at as created')->orderBy('created_at', 'DESC')->get()->toArray();
+        return response()->json(['data' => $data, 'currency' => Setting::get('currency'), 'wallet_balance' => Auth::user()->wallet_balance], 200);
     }
-    
+
 }

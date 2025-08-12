@@ -14,6 +14,7 @@ use Config;
 use JWTAuth;
 use Setting;
 use Notification;
+use Str;
 use Validator;
 use Socialite;
 use Twilio;
@@ -38,10 +39,10 @@ class TokenController extends Controller
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:providers,email,NULL,id,deleted_at,NULL',
             'mobile' => 'required|unique:providers,mobile,NULL,id,deleted_at,NULL',
-            // 'password' => 'required|confirmed|min:6',
             'dial_code' => 'required',
             'otp' => 'required|exists:provider_tokens,code,mobile,' . $request->mobile,
-
+            'avatar' => 'required',
+            'dob' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -90,7 +91,7 @@ class TokenController extends Controller
             }
 
             $Provider = Provider::create($Provider);
-            $password = 1234567;
+            $password = Str::random(10);
             $Provider->password = bcrypt($password);
             $Provider->save();
 
@@ -164,8 +165,8 @@ class TokenController extends Controller
             // 'vehicle_no' =>'required',
         ]);
 
-        $token_user = ProviderToken::where('mobile','=',$request->mobile)->first();
-        $partner = Provider::where('mobile','=', $request->mobile)->first();
+        $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
+        $partner = Provider::where('mobile', '=', $request->mobile)->first();
 
         if ($token_user->code != $request->otp) {
             return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 200);
@@ -177,7 +178,7 @@ class TokenController extends Controller
         if ($partner->partner_id != "") {
             $password = 123456;
 
-        }else{
+        } else {
             $password = 1234567;
 
         }
@@ -186,7 +187,7 @@ class TokenController extends Controller
         $credentials = [];
         $credentials['mobile'] = $request->mobile;
         $credentials['password'] = $password;
-        if (!$token = auth('providerapi')->attempt($credentials)) {
+        if (!$token = auth('providerapi')->attempt( $credentials)) {
             return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 200);
 
         }
@@ -243,10 +244,10 @@ class TokenController extends Controller
             return response()->json(['success' => $validator->errors()->first(), "message" => 0]);
         }
 
-        $mobile = Provider::where('mobile', '=', $request->mobile)->first();
-        if ($mobile) {
-            return response()->json(['success' => "0", "message" => "The mobile number has been registered."], 200);
-        }
+        // $mobile = Provider::where('mobile', '=', $request->mobile)->first();
+        // if ($mobile) {
+        //     return response()->json(['success' => "0", "message" => "The mobile number has been registered."], 200);
+        // }
         try {
 
             // $provider = Provider::where('mobile','=',$request->mobile)->first();
@@ -255,12 +256,16 @@ class TokenController extends Controller
             // }
 
             $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
+            $newUser = true;
+
             if ($token_user != null) {
                 //    $otp = rand(pow(10, 4-1), pow(10, 4)-1);
                 $otp = 123456;
                 $token_user->code = $otp;
                 $token_user->updated_at = Carbon::now();
                 $token_user->save();
+
+                $newUser = false;
 
                 $number = $token_user->dial_code . $token_user->mobile;
                 // $message = "<#> Prontotaxi: Your verification code is ".$otp." PUJWhJxn7T+";
@@ -286,7 +291,13 @@ class TokenController extends Controller
             // $provider['password'] = bcrypt($otp);
             // $provider->save(); 
 
-            return response()->json(['success' => 1, "message" => "OTP Send Successful", 'otp' => $otp], 200);
+            return response()->json([
+                'new_user' => $newUser,
+                'success' => 1,
+                "message" => "OTP Send Successful",  
+                'otp' => $otp
+            ], 200);
+            
         } catch (Exception $e) {
             return response()->json(['error' => trans('api.something_went_wrong')], 500);
         }
@@ -416,7 +427,7 @@ class TokenController extends Controller
             }
         } catch (Exception $e) {
             if ($request->ajax()) {
-                return  $e;
+                return $e;
             }
         }
     }
