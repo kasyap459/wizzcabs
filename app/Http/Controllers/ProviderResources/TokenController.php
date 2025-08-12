@@ -173,6 +173,11 @@ class TokenController extends Controller
             // return response()->json(['message' => 'number 1', 'success' => 0], 200);
 
         }
+
+        if ($partner == null) {
+            return response()->json(['message' => 'Please register first', 'success' => 0], 200);
+        }
+
         $password = 0;
 
         if ($partner->partner_id != "") {
@@ -187,7 +192,7 @@ class TokenController extends Controller
         $credentials = [];
         $credentials['mobile'] = $request->mobile;
         $credentials['password'] = $password;
-        if (!$token = auth('providerapi')->attempt( $credentials)) {
+        if (!$token = auth('providerapi')->attempt($credentials)) {
             return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 200);
 
         }
@@ -294,10 +299,10 @@ class TokenController extends Controller
             return response()->json([
                 'new_user' => $newUser,
                 'success' => 1,
-                "message" => "OTP Send Successful",  
+                "message" => "OTP Send Successful",
                 'otp' => $otp
             ], 200);
-            
+
         } catch (Exception $e) {
             return response()->json(['error' => trans('api.something_went_wrong')], 500);
         }
