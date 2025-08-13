@@ -178,24 +178,10 @@ class TokenController extends Controller
             return response()->json(['message' => 'Please register first', 'success' => 0], 200);
         }
 
-        $password = 0;
-
-        if ($partner->partner_id != "") {
-            $password = 123456;
-
-        } else {
-            $password = 1234567;
-
-        }
-
         Config::set('auth.providers.users.model', 'App\Models\Provider');
-        $credentials = [];
-        $credentials['mobile'] = $request->mobile;
-        $credentials['password'] = $password;
-        if (!$token = auth('providerapi')->attempt($credentials)) {
-            return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 200);
 
-        }
+        // Directly log in without password
+        $token = auth('providerapi')->login($partner);
 
         $Provider = Auth::guard('providerapi')->user();
 
