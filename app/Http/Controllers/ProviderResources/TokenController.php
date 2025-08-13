@@ -263,6 +263,8 @@ class TokenController extends Controller
             $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
             $newUser = true;
 
+            $additionalData = null;
+
             if ($token_user != null) {
                 //    $otp = rand(pow(10, 4-1), pow(10, 4)-1);
                 $otp = 123456;
@@ -272,6 +274,11 @@ class TokenController extends Controller
 
                 $newUser = false;
 
+                $additionalData = [
+                    'tokenUser' => $token_user,
+                    'newCreated' => false
+                ];
+
                 $number = $token_user->dial_code . $token_user->mobile;
                 // $message = "<#> Prontotaxi: Your verification code is ".$otp." PUJWhJxn7T+";
                 //$message = "DO NOT SHARE:".$otp." is the OTP for your account. Keep this OTP to yourself for account safety.";
@@ -280,7 +287,7 @@ class TokenController extends Controller
             } else {
                 //    $otp = rand(pow(10, 4-1), pow(10, 4)-1);
                 $otp = 123456;
-                ProviderToken::create([
+                $token_user = ProviderToken::create([
                     'code' => $otp,
                     'user_id' => null,
                     'mobile' => $request->mobile,
@@ -291,6 +298,11 @@ class TokenController extends Controller
                 $message = "<#> Wizz-Cabs: Your verification code is " . $otp . " PUJWhJxn7T+";
                 //$message = "DO NOT SHARE:".$otp." is the OTP for your account. Keep this OTP to yourself for account safety.";
                 // (new SendPushNotification)->sendSMSUser($number,$message);
+
+                $additionalData = [
+                    'tokenUser' => $token_user,
+                    'newCreated' => true
+                ];
             }
 
             // $provider['password'] = bcrypt($otp);
@@ -300,7 +312,8 @@ class TokenController extends Controller
                 'new_user' => $newUser,
                 'success' => 1,
                 "message" => "OTP Send Successful",
-                'otp' => $otp
+                'otp' => $otp,
+                'additionalData' => $additionalData
             ], 200);
 
         } catch (Exception $e) {
