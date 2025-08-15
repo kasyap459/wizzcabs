@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ProviderResources;
 
+use App\Helpers\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use App\Http\Controllers\Controller;
@@ -110,7 +111,7 @@ class TokenController extends Controller
                 $now = Carbon::now();
                 $expired = $Provider->expires_at;
                 if (Carbon::now() > $Provider->expires_at) {
-                    return response()->json(['message' => 'Your Account has been expired.Please contact your administrator', 'success' => 0], 200);
+                    return response()->json(['message' => 'Your Account has been expired. Please contact your administrator', 'success' => 0], 200);
                 }
             }
 
@@ -130,14 +131,18 @@ class TokenController extends Controller
                 ]);
             }
             Provider::where('id', $Provider->id)->update(['status' => 'active', 'active_from' => Carbon::now()]);
+
+            $profileData = Helper::getProviderProfileData($Provider);
+
             return response()->json([
                 'token' => $token,
                 'expires' => auth('providerapi')->factory()->getTTL() * 60,
                 'success' => 1,
-                'token_type' => 'Bearer'
+                'token_type' => 'Bearer',
+                'profile' => $profileData
             ]);
 
-            return response()->json(['data' => $Provider, 'success' => 1], 200);
+            // return response()->json(['data' => $Provider, 'success' => 1], 200);
             //return $Provider;
 
         } catch (QueryException $e) {
@@ -209,11 +214,15 @@ class TokenController extends Controller
             ]);
         }
         Provider::where('id', $Provider->id)->update(['status' => 'active', 'active_from' => Carbon::now()]);
+
+        $profileData = Helper::getProviderProfileData($Provider);
+
         return response()->json([
             'token' => $token,
             'expires' => auth('providerapi')->factory()->getTTL() * 60,
             'success' => 1,
-            'token_type' => 'Bearer'
+            'token_type' => 'Bearer',
+            'profile' => $profileData
         ]);
     }
 

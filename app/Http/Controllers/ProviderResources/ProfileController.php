@@ -35,51 +35,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        //try {
-
-        $provider = Provider::where('id', Auth::user()->id)->select('id', 'name', 'email', 'mobile', 'avatar', 'account_status')->first();
-        $vehicle = Vehicle::where('id', '=', Auth::user()->mapping_id)->select('vehicle_no', 'service_type_id')->first();
-
-        if ($vehicle != null) {
-            $provider['service_type'] = ServiceType::where('id', $vehicle->service_type_id)->pluck('name')->first();
-            $provider['vehicle'] = $vehicle->vehicle_no;
-        }
-
-        $provider->avatar = $provider->avatar;
-        $provider->currency = Setting::get('currency');
-        $provider->contact_number = Setting::get('contact_number');
-        $provider->sos_number = Setting::get('sos_number');
-
-        $providerId = $provider->id;
-
-        $provider = json_decode(json_encode($provider), true);
-
-        $provider['documents'] = [];
-
-        $providerDocumentTypes = Helper::PROVIDER_DOCUMENT_TYPES;
-        foreach ($providerDocumentTypes as $providerDocumentType) {
-            $document = ProviderDocument::where('provider_id', $providerId)
-                ->where('document_type', $providerDocumentType)->first();
-            if ($document != null) {
-                $provider['documents'][$providerDocumentType] = $document;
-            } else {
-                $provider['documents'][$providerDocumentType] = null;
-            }
-        }
-
-        $bankDetails = ProviderBankDetail::where('provider_id', $providerId)->first();
-        if ($bankDetails != null) {
-            $provider['bankDetails'] = $bankDetails;
-        } else {
-            $provider['bankDetails'] = null;
-        }
-
-
-        return $provider;
-
-        // } catch (Exception $e) {
-        //     return $e->getMessage();
-        // }
+        return Helper::getProviderProfileData(Auth::user());
     }
 
     /**

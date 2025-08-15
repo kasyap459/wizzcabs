@@ -35,11 +35,14 @@ use App\Models\FavouriteLocation;
 use App\Models\UserNote;
 use App\Models\UserCare;
 use App\Models\ContactList;
+use App\Models\ProviderBankDetail;
+use App\Models\ProviderDocument;
 use App\Models\UserRating;
 use App\Models\ReferEarn;
 use App\Models\WebNotify;
 use App\Models\Waypoint;
 use App\Models\ProviderWallet;
+use App\Models\Vehicle;
 use Illuminate\Support\Facades\File as FacadesFile;
 use Str;
 
@@ -557,6 +560,48 @@ class Helper
         $finalUrl = url($s3_url);
 
         return $finalUrl;
+    }
+
+    public static function getProviderProfileData($user)
+    {
+        $provider = Provider::where('id', $user->id)->select('id', 'name', 'email', 'mobile', 'avatar', 'account_status')->first();
+        $vehicle = Vehicle::where('id', '=', $user->mapping_id)->select('vehicle_no', 'service_type_id')->first();
+
+        if ($vehicle != null) {
+            $provider['service_type'] = ServiceType::where('id', $vehicle->service_type_id)->pluck('name')->first();
+            $provider['vehicle'] = $vehicle->vehicle_no;
+        }
+
+        $provider->avatar = $provider->avatar;
+        $provider->currency = Setting::get('currency');
+        $provider->contact_number = Setting::get('contact_number');
+        $provider->sos_number = Setting::get('sos_number');
+
+        $providerId = $provider->id;
+
+        $provider = json_decode(json_encode($provider), true);
+
+        $provider['documents'] = [];
+
+        $providerDocumentTypes = Helper::PROVIDER_DOCUMENT_TYPES;
+        foreach ($providerDocumentTypes as $providerDocumentType) {
+            $document = ProviderDocument::where('provider_id', $providerId)
+                ->where('document_type', $providerDocumentType)->first();
+            if ($document != null) {
+                $provider['documents'][$providerDocumentType] = $document;
+            } else {
+                $provider['documents'][$providerDocumentType] = null;
+            }
+        }
+
+        $bankDetails = ProviderBankDetail::where('provider_id', $providerId)->first();
+        if ($bankDetails != null) {
+            $provider['bankDetails'] = $bankDetails;
+        } else {
+            $provider['bankDetails'] = null;
+        }
+
+        return $provider;
     }
 
 }
