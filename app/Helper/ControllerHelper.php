@@ -564,11 +564,39 @@ class Helper
 
     public static function getProviderProfileData($user)
     {
-        $provider = Provider::where('id', $user->id)->select('id', 'name', 'email', 'mobile', 'avatar', 'account_status')->first();
-        $vehicle = Vehicle::where('id', '=', $user->mapping_id)->select('vehicle_no', 'service_type_id')->first();
+        $provider = Provider::where('id', $user->id)->select(
+
+            'id',
+            'name',
+            'email',
+            'mobile',
+            'avatar',
+            'account_status',
+
+            'mapping_id',
+
+            'license_no',
+            'license_expire',
+
+            'ptd_number'
+
+        )->first();
+
+        $vehicle = Vehicle::where('id', '=', $user->mapping_id)->select(
+            'vehicle_no',
+            'vehicle_name',
+            'service_type_id',
+            
+            'insurance_no',
+            'insurance_exp',
+
+            'ptv_number'
+        )->first();
 
         if ($vehicle != null) {
+            $provider['vehicleDetails'] = $vehicle;
             $provider['service_type'] = ServiceType::where('id', $vehicle->service_type_id)->pluck('name')->first();
+            $provider['vehicleDetails']['vehicleTypeName'] = $provider['service_type'];
             $provider['vehicle'] = $vehicle->vehicle_no;
         }
 
@@ -602,6 +630,34 @@ class Helper
         }
 
         return $provider;
+    }
+
+    public static function getOrCreateVehicle($provider)
+    {
+        $providerVehicleModel = null;
+
+        $providerVehicleId = $provider->mapping_id;
+        if ($providerVehicleId <= 0 || $providerVehicleId == null) {
+            $providerVehicleModel = Vehicle::where(['partner_id' => $provider->id])->first();
+        } else {
+            $providerVehicleModel = Vehicle::where(['partner_id' => $providerVehicleId])->first();
+        }
+
+        if ($providerVehicleModel == null) {
+            $providerVehicleModel = new Vehicle([
+                'partner_id' => $provider->id
+            ]);
+            $providerVehicleModel->save();
+            $providerVehicleModel = Vehicle::where(['partner_id' => $provider->id])->first();
+        }
+
+        $provider->mapping_id = $providerVehicleModel->id;
+        $provider->save();
+
+        return [
+            'provider' => $provider,
+            'providerVehicleModel' => $providerVehicleModel
+        ];
     }
 
 }

@@ -32,7 +32,14 @@ Route::group(['middleware' => ['provider.api']], function () {
     Route::group(['prefix' => 'profile'], function () {
 
         Route::get('/', 'ProviderResources\ProfileController@index');
-        Route::post('/upload-document', 'ProviderResources\ProfileController@uploadDocument');
+
+        // Route::post('/upload-document', 'ProviderResources\ProfileController@uploadDocument');
+        Route::post('/update-driving-license', 'ProviderResources\ProfileController@updateDrivingLicense');
+        Route::post('/update-rego', 'ProviderResources\ProfileController@updateRego');
+        Route::post('/update-taxi-insurance', 'ProviderResources\ProfileController@updateTaxiInsurance');
+        Route::post('/update-transport-vehicle-certificate', 'ProviderResources\ProfileController@updateTransportVehicleCertificate');
+        Route::post('/update-transport-driver-certificate', 'ProviderResources\ProfileController@updateTransportDriverCertificate');
+
         Route::post('/save-bank-details', 'ProviderResources\ProfileController@saveBankDetails');
 
         Route::post('/', 'ProviderResources\ProfileController@update');

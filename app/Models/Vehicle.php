@@ -41,6 +41,8 @@ class Vehicle extends Model
         'status',
         'custom_field1',
         'custom_field2',
+
+        'ptv_number'
     ];
 
     /**
