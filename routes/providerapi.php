@@ -20,6 +20,8 @@ Route::post('/oauth/token', 'ProviderResources\TokenController@authenticate');
 Route::post('/logout', 'ProviderResources\TokenController@logout');
 Route::post('/send_otp', 'ProviderResources\TokenController@send_otp');
 
+Route::get('/configuration', 'ProviderResources\TokenController@configuration');
+
 Route::post('/upload-file', [UserLoginApiController::class, 'upload_file']);
 
 Route::post('/forgot/password', 'ProviderResources\TokenController@forgot_password');

@@ -28,6 +28,7 @@ use App\Models\ProviderToken;
 use App\Models\Vehicle;
 use App\Models\Country;
 use App\Http\Controllers\SendPushNotification;
+use App\Models\ServiceType;
 
 class TokenController extends Controller
 {
@@ -539,4 +540,14 @@ class TokenController extends Controller
             return response()->json(['message' => 'Something went Wrong', 'success' => 0], 200);
         }
     }
+
+    public function configuration()
+    {
+        $serviceTypes = ServiceType::where([])->get();
+        $data = [
+            'vehicleTypes' => $serviceTypes
+        ];
+        return response()->json($data);
+    }
+
 }
