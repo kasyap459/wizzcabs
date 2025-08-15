@@ -665,7 +665,7 @@ class UserLoginApiController extends Controller
             'file' => 'required|mimes:jpg,jpeg,png,pdf',
         ]);
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
         try {
             if ($request->hasFile('file')) {

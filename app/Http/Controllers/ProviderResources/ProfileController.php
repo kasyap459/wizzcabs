@@ -453,7 +453,6 @@ class ProfileController extends Controller
     }
 
 
-
     public function updateDrivingLicense(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -464,7 +463,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -514,7 +513,7 @@ class ProfileController extends Controller
                 ]);
 
             } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 200);
+                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
 
         } catch (ModelNotFoundException $e) {
@@ -534,7 +533,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -584,7 +583,7 @@ class ProfileController extends Controller
                 ]);
 
             } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 200);
+                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
 
         } catch (ModelNotFoundException $e) {
@@ -601,7 +600,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -648,7 +647,7 @@ class ProfileController extends Controller
                 ]);
 
             } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 200);
+                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
 
         } catch (ModelNotFoundException $e) {
@@ -666,7 +665,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -713,7 +712,7 @@ class ProfileController extends Controller
                 ]);
 
             } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 200);
+                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
 
         } catch (ModelNotFoundException $e) {
@@ -731,7 +730,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -773,7 +772,7 @@ class ProfileController extends Controller
                 ]);
 
             } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 200);
+                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
 
         } catch (ModelNotFoundException $e) {

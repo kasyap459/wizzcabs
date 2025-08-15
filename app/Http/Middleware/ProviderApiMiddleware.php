@@ -19,23 +19,27 @@ class ProviderApiMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
+
+    public function respondWithError($errorMessage)
+    {
+        return response()->json(['success' => "0", "message" => $errorMessage], 401);
+    }
+
     public function handle($request, Closure $next)
     {
         Config::set('auth.providers.users.model', 'App\Models\Provider');
-
         try {
             $user = JWTAuth::parseToken()->authenticate();
-
-         // $user = JWTAuth::getToken();
-        } catch (Exception $e) {
-        if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
-            return $this->respondWithError("Token is Invalid");
-        }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
-            return $this->respondWithError(['error'=>'Token is Expired']);
-        }else{
-            return $this->respondWithError(['error'=>'Something is wrong']);
+            // $user = JWTAuth::getToken();
+        } catch (\Exception $e) {
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                return $this->respondWithError("Token is Invalid");
+            } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                return $this->respondWithError("Token is Expired");
+            } else {
+                return $this->respondWithError("Login failed");
+            }
         }
-    }
-    return $next($request);
+        return $next($request);
     }
 }

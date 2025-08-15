@@ -572,6 +572,8 @@ class Helper
             'mobile',
             'avatar',
             'account_status',
+            'rating',
+            'wallet_balance',
 
             'mapping_id',
 
@@ -628,6 +630,19 @@ class Helper
         } else {
             $provider['bankDetails'] = null;
         }
+
+        $provider['stats'] = [
+            'walletBalance'=> $provider['wallet_balance'],
+
+            'totalHours' => 0,
+            'totalDistance' => 0,
+            'totalEarnings' => 0,
+            'totalRides' => 0,
+
+            'weeklyHours' => 0,
+            'weeklyDistance' => 0,
+            'weeklingEarnings' => 0,
+        ];
 
         return $provider;
     }

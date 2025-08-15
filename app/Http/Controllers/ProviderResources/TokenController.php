@@ -52,15 +52,15 @@ class TokenController extends Controller
             $mobile = Provider::where('mobile', '=', $request->mobile)->first();
             $check_otp = ProviderToken::where('mobile', '=', $request->mobile)->first();
             if ($mail) {
-                return response()->json(['success' => "0", "message" => "The email has already been taken."], 200);
+                return response()->json(['success' => "0", "message" => "The email has already been taken."], 422);
             }
             if ($mobile) {
-                return response()->json(['success' => "0", "message" => "The mobile has already been taken."], 200);
+                return response()->json(['success' => "0", "message" => "The mobile has already been taken."], 422);
             }
             if ($check_otp->code != $request->otp) {
-                return response()->json(['success' => "0", "message" => "Please enter the correct OTP."], 200);
+                return response()->json(['success' => "0", "message" => "Please enter the correct OTP."], 422);
             }
-            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 200);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
         }
 
         try {
@@ -103,7 +103,7 @@ class TokenController extends Controller
             $credentials['email'] = $request->email;
             $credentials['password'] = $password;
             if (!$token = auth('providerapi')->attempt($credentials)) {
-                return response()->json(['message' => 'Email or Password incorrect', 'success' => 0], 200);
+                return response()->json(['message' => 'Email or Password incorrect', 'success' => 0], 422);
             }
 
             $Provider = Auth::guard('providerapi')->user();
@@ -112,7 +112,7 @@ class TokenController extends Controller
                 $now = Carbon::now();
                 $expired = $Provider->expires_at;
                 if (Carbon::now() > $Provider->expires_at) {
-                    return response()->json(['message' => 'Your Account has been expired. Please contact your administrator', 'success' => 0], 200);
+                    return response()->json(['message' => 'Your Account has been expired. Please contact your administrator', 'success' => 0], 422);
                 }
             }
 
@@ -149,7 +149,7 @@ class TokenController extends Controller
         } catch (QueryException $e) {
             // return $e;
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['error' => 'Algo salió mal. ¡Vuelve a intentarlo más tarde!', 'success' => 0], 200);
+                return response()->json(['error' => 'Algo salió mal. ¡Vuelve a intentarlo más tarde!', 'success' => 0], 422);
             }
             return abort(500);
         }
@@ -174,14 +174,22 @@ class TokenController extends Controller
         $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
         $partner = Provider::where('mobile', '=', $request->mobile)->first();
 
+        if(!$token_user){
+            return response()->json(['message' => 'Invalid request, please request OTP again', 'success' => 0], 422);
+        }
+
+        if(!$partner){
+            return response()->json(['message' => 'No Account found', 'success' => 0], 422);
+        }
+
         if ($token_user->code != $request->otp) {
-            return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 200);
+            return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0],  422);
             // return response()->json(['message' => 'number 1', 'success' => 0], 200);
 
         }
 
         if ($partner == null) {
-            return response()->json(['message' => 'Please register first', 'success' => 0], 200);
+            return response()->json(['message' => 'Please register first', 'success' => 0], 422);
         }
 
         Config::set('auth.providers.users.model', 'App\Models\Provider');
@@ -195,7 +203,7 @@ class TokenController extends Controller
             $now = Carbon::now();
             $expired = $Provider->expires_at;
             if (Carbon::now() > $Provider->expires_at) {
-                return response()->json(['message' => 'Your Account has been expired.Please contact your administrator', 'success' => 0], 200);
+                return response()->json(['message' => 'Your Account has been expired.Please contact your administrator', 'success' => 0], 422);
             }
         }
 
@@ -242,7 +250,7 @@ class TokenController extends Controller
             'dial_code' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['success' => $validator->errors()->first(), "message" => 0]);
+            return response()->json(['success' => $validator->errors()->first(), "message" => 0], 422);
         }
 
         // $mobile = Provider::where('mobile', '=', $request->mobile)->first();
