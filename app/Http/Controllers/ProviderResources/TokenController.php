@@ -34,43 +34,44 @@ class TokenController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'device_id' => 'required',
-            'device_type' => 'required|in:android,ios',
-            'device_token' => 'required',
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255',
-            'mobile' => 'required|unique:providers,mobile,NULL,id,deleted_at,NULL',
-            'dial_code' => 'required',
-            'otp' => 'required|exists:provider_tokens,code,mobile,' . $request->mobile,
-            'avatar' => 'required',
-            'dob' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            $mail = Provider::where('email', '=', $request->email)->first();
-            $mobile = Provider::where('mobile', '=', $request->mobile)->first();
-            $check_otp = ProviderToken::where('mobile', '=', $request->mobile)->first();
-
-            if (!$check_otp) {
-                return response()->json(['success' => "0", "message" => "Failed to validate OTP, please resend OTP."], 422);
-            } 
-
-            if ($mail) {
-                return response()->json(['success' => "0", "message" => "The email has already been taken."], 422);
-            }
-            if ($mobile) {
-                return response()->json(['success' => "0", "message" => "The mobile has already been taken."], 422);
-            }
-
-            if ($check_otp->code != $request->otp) {
-                return response()->json(['success' => "0", "message" => "Please enter the correct OTP."], 422);
-            }
-
-            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
-        }
-
         try {
+
+            $validator = Validator::make($request->all(), [
+                'device_id' => 'required',
+                'device_type' => 'required|in:android,ios',
+                'device_token' => 'required',
+                'name' => 'required|max:255',
+                'email' => 'required|email|max:255',
+                'mobile' => 'required|unique:providers,mobile,NULL,id,deleted_at,NULL',
+                'dial_code' => 'required',
+                'otp' => 'required|exists:provider_tokens,code,mobile,' . $request->mobile,
+                'avatar' => 'required',
+                'dob' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $mail = Provider::where('email', '=', $request->email)->first();
+                $mobile = Provider::where('mobile', '=', $request->mobile)->first();
+                $check_otp = ProviderToken::where('mobile', '=', $request->mobile)->first();
+
+                if (!$check_otp) {
+                    return response()->json(['success' => "0", "message" => "Failed to validate OTP, please resend OTP."], 422);
+                }
+
+                if ($mail) {
+                    return response()->json(['success' => "0", "message" => "The email has already been taken."], 422);
+                }
+                if ($mobile) {
+                    return response()->json(['success' => "0", "message" => "The mobile has already been taken."], 422);
+                }
+
+                if ($check_otp->code != $request->otp) {
+                    return response()->json(['success' => "0", "message" => "Please enter the correct OTP."], 422);
+                }
+
+                return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            }
+
             $country = Country::where('dial_code', '=', $request->dial_code)->first();
             $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
             $Provider = $request->all();
@@ -158,7 +159,7 @@ class TokenController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['error' => 'Algo salió mal. ¡Vuelve a intentarlo más tarde!', 'success' => 0], 422);
             }
-            return abort(500);
+            return response()->json(['error' => 'Invalid request', 'data' => $e->getMessage(), 'success' => 0], 422);
         }
     }
     /**
