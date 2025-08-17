@@ -454,7 +454,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'expiredAt' => 'required|date|after:today',
             'licenseNumber' => 'required|string',
-            'front' => 'required|mimes:jpg,jpeg,png,webp,pdf',
+            'front' => 'nullable|mimes:jpg,jpeg,png,webp,pdf',
             'back' => 'nullable|mimes:jpg,jpeg,png,webp,pdf'
         ]);
 
@@ -469,49 +469,51 @@ class ProfileController extends Controller
 
             $provider = Auth::user();
 
+            // if ($request->hasFile('front')) {
+
+            $documentModel = ProviderDocument::where('provider_id', $provider->id)
+                ->where('document_type', $documentType)
+                ->first();
+
+            if ($documentModel == null) {
+                $documentModel = new ProviderDocument();
+                $documentModel->provider_id = $provider->id;
+                $documentModel->document_type = $documentType;
+                $documentModel->document_id = 0;
+            }
+
             if ($request->hasFile('front')) {
-
-                $documentModel = ProviderDocument::where('provider_id', $provider->id)
-                    ->where('document_type', $documentType)
-                    ->first();
-
-                if ($documentModel == null) {
-                    $documentModel = new ProviderDocument();
-                    $documentModel->provider_id = $provider->id;
-                    $documentModel->document_type = $documentType;
-                    $documentModel->document_id = 0;
-                }
-
                 $frontUrl = Helper::uploadFile($request->front);
                 $documentModel->url = $frontUrl;
-
-                if ($request->hasFile('back')) {
-                    $backUrl = Helper::uploadFile($request->back);
-                    $documentModel->back_url = $backUrl;
-                } else {
-                    $documentModel->back_url = null;
-                }
-
-                $documentModel->expires_at = $request->expiredAt;
-                $documentModel->status = 'ACTIVE';
-                $documentModel->save();
-
-                $provider->license_no = $request->licenseNumber;
-                $provider->license_expire = $request->expiredAt;
-
-                $provider->save();
-
-                $profileData = Helper::getProviderProfileData($provider);
-
-                return response()->json([
-                    'message' => 'License details have been updated!',
-                    'document' => $documentModel,
-                    'profile' => $profileData
-                ]);
-
-            } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
+
+            if ($request->hasFile('back')) {
+                $backUrl = Helper::uploadFile($request->back);
+                $documentModel->back_url = $backUrl;
+            } else {
+                $documentModel->back_url = null;
+            }
+
+            $documentModel->expires_at = $request->expiredAt;
+            $documentModel->status = 'ACTIVE';
+            $documentModel->save();
+
+            $provider->license_no = $request->licenseNumber;
+            $provider->license_expire = $request->expiredAt;
+
+            $provider->save();
+
+            $profileData = Helper::getProviderProfileData($provider);
+
+            return response()->json([
+                'message' => 'License details have been updated!',
+                'document' => $documentModel,
+                'profile' => $profileData
+            ]);
+
+            // } else {
+            //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
+            // }
 
         } catch (ModelNotFoundException $e) {
             return $e;
@@ -526,7 +528,7 @@ class ProfileController extends Controller
             'vehicleType' => 'required|string',
             'licensePlateNumber' => 'required|string',
 
-            'file' => 'required|mimes:jpg,jpeg,png,webp,pdf',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf',
         ]);
 
         if ($validator->fails()) {
@@ -540,49 +542,52 @@ class ProfileController extends Controller
 
             $provider = Auth::user();
 
+            // if ($request->hasFile('file')) {
+
+            $documentModel = ProviderDocument::where('provider_id', $provider->id)
+                ->where('document_type', $documentType)
+                ->first();
+
+            if ($documentModel == null) {
+                $documentModel = new ProviderDocument();
+                $documentModel->provider_id = $provider->id;
+                $documentModel->document_type = $documentType;
+                $documentModel->document_id = 0;
+            }
+
             if ($request->hasFile('file')) {
-
-                $documentModel = ProviderDocument::where('provider_id', $provider->id)
-                    ->where('document_type', $documentType)
-                    ->first();
-
-                if ($documentModel == null) {
-                    $documentModel = new ProviderDocument();
-                    $documentModel->provider_id = $provider->id;
-                    $documentModel->document_type = $documentType;
-                    $documentModel->document_id = 0;
-                }
-
                 $fileUrl = Helper::uploadFile($request->file);
                 $documentModel->url = $fileUrl;
-                $documentModel->back_url = null;
-
-                $documentModel->expires_at = $request->expiredAt;
-                $documentModel->status = 'ACTIVE';
-                $documentModel->save();
-
-                $data = Helper::getOrCreateVehicle($provider);
-                $provider = $data["provider"];
-                $providerVehicleModel = $data["providerVehicleModel"];
-
-                $providerVehicleModel->vehicle_name = $request->vehicle;
-                $providerVehicleModel->vehicle_no = $request->licensePlateNumber;
-                $providerVehicleModel->service_type_id = $request->vehicleType;
-
-                $providerVehicleModel->save();
-
-                $profileData = Helper::getProviderProfileData($provider);
-
-                return response()->json([
-                    'message' => 'Rego details have been updated!',
-                    'document' => $documentModel,
-                    'vehicle' => $providerVehicleModel,
-                    'profile' => $profileData
-                ]);
-
-            } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
+
+            $documentModel->back_url = null;
+
+            $documentModel->expires_at = $request->expiredAt;
+            $documentModel->status = 'ACTIVE';
+            $documentModel->save();
+
+            $data = Helper::getOrCreateVehicle($provider);
+            $provider = $data["provider"];
+            $providerVehicleModel = $data["providerVehicleModel"];
+
+            $providerVehicleModel->vehicle_name = $request->vehicle;
+            $providerVehicleModel->vehicle_no = $request->licensePlateNumber;
+            $providerVehicleModel->service_type_id = $request->vehicleType;
+
+            $providerVehicleModel->save();
+
+            $profileData = Helper::getProviderProfileData($provider);
+
+            return response()->json([
+                'message' => 'Rego details have been updated!',
+                'document' => $documentModel,
+                'vehicle' => $providerVehicleModel,
+                'profile' => $profileData
+            ]);
+
+            // } else {
+            //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
+            // }
 
         } catch (ModelNotFoundException $e) {
             return $e;
@@ -594,7 +599,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'expiredAt' => 'required|date|after:today',
 
-            'file' => 'required|mimes:jpg,jpeg,png,webp,pdf',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf',
         ]);
 
         if ($validator->fails()) {
@@ -608,46 +613,49 @@ class ProfileController extends Controller
 
             $provider = Auth::user();
 
+            // if ($request->hasFile('file')) {
+
+            $documentModel = ProviderDocument::where('provider_id', $provider->id)
+                ->where('document_type', $documentType)
+                ->first();
+
+            if ($documentModel == null) {
+                $documentModel = new ProviderDocument();
+                $documentModel->provider_id = $provider->id;
+                $documentModel->document_type = $documentType;
+                $documentModel->document_id = 0;
+            }
+
             if ($request->hasFile('file')) {
-
-                $documentModel = ProviderDocument::where('provider_id', $provider->id)
-                    ->where('document_type', $documentType)
-                    ->first();
-
-                if ($documentModel == null) {
-                    $documentModel = new ProviderDocument();
-                    $documentModel->provider_id = $provider->id;
-                    $documentModel->document_type = $documentType;
-                    $documentModel->document_id = 0;
-                }
-
                 $fileUrl = Helper::uploadFile($request->file);
                 $documentModel->url = $fileUrl;
-                $documentModel->back_url = null;
-
-                $documentModel->expires_at = $request->expiredAt;
-                $documentModel->status = 'ACTIVE';
-                $documentModel->save();
-
-                $data = Helper::getOrCreateVehicle($provider);
-                $provider = $data["provider"];
-                $providerVehicleModel = $data["providerVehicleModel"];
-
-                $providerVehicleModel->insurance_exp = $request->expiredAt;
-                $providerVehicleModel->save();
-
-                $profileData = Helper::getProviderProfileData($provider);
-
-                return response()->json([
-                    'message' => 'Taxi Insurance have been updated!',
-                    'document' => $documentModel,
-                    'vehicle' => $providerVehicleModel,
-                    'profile' => $profileData
-                ]);
-
-            } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
+
+            $documentModel->back_url = null;
+
+            $documentModel->expires_at = $request->expiredAt;
+            $documentModel->status = 'ACTIVE';
+            $documentModel->save();
+
+            $data = Helper::getOrCreateVehicle($provider);
+            $provider = $data["provider"];
+            $providerVehicleModel = $data["providerVehicleModel"];
+
+            $providerVehicleModel->insurance_exp = $request->expiredAt;
+            $providerVehicleModel->save();
+
+            $profileData = Helper::getProviderProfileData($provider);
+
+            return response()->json([
+                'message' => 'Taxi Insurance have been updated!',
+                'document' => $documentModel,
+                'vehicle' => $providerVehicleModel,
+                'profile' => $profileData
+            ]);
+
+            // } else {
+            //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
+            // }
 
         } catch (ModelNotFoundException $e) {
             return $e;
@@ -660,7 +668,7 @@ class ProfileController extends Controller
             'expiredAt' => 'required|date|after:today',
             'ptvNumber' => 'required|string',
 
-            'file' => 'required|mimes:jpg,jpeg,png,webp,pdf',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf',
         ]);
 
         if ($validator->fails()) {
@@ -674,46 +682,49 @@ class ProfileController extends Controller
 
             $provider = Auth::user();
 
+            // if ($request->hasFile('file')) {
+
+            $documentModel = ProviderDocument::where('provider_id', $provider->id)
+                ->where('document_type', $documentType)
+                ->first();
+
+            if ($documentModel == null) {
+                $documentModel = new ProviderDocument();
+                $documentModel->provider_id = $provider->id;
+                $documentModel->document_type = $documentType;
+                $documentModel->document_id = 0;
+            }
+
             if ($request->hasFile('file')) {
-
-                $documentModel = ProviderDocument::where('provider_id', $provider->id)
-                    ->where('document_type', $documentType)
-                    ->first();
-
-                if ($documentModel == null) {
-                    $documentModel = new ProviderDocument();
-                    $documentModel->provider_id = $provider->id;
-                    $documentModel->document_type = $documentType;
-                    $documentModel->document_id = 0;
-                }
-
                 $fileUrl = Helper::uploadFile($request->file);
                 $documentModel->url = $fileUrl;
-                $documentModel->back_url = null;
-
-                $documentModel->expires_at = $request->expiredAt;
-                $documentModel->status = 'ACTIVE';
-                $documentModel->save();
-
-                $data = Helper::getOrCreateVehicle($provider);
-                $provider = $data["provider"];
-                $providerVehicleModel = $data["providerVehicleModel"];
-
-                $providerVehicleModel->ptv_number = $request->ptvNumber;
-                $providerVehicleModel->save();
-
-                $profileData = Helper::getProviderProfileData($provider);
-
-                return response()->json([
-                    'message' => 'Transport Vehicle Certificate have been updated!',
-                    'document' => $documentModel,
-                    'vehicle' => $providerVehicleModel,
-                    'profile' => $profileData
-                ]);
-
-            } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
+
+            $documentModel->back_url = null;
+
+            $documentModel->expires_at = $request->expiredAt;
+            $documentModel->status = 'ACTIVE';
+            $documentModel->save();
+
+            $data = Helper::getOrCreateVehicle($provider);
+            $provider = $data["provider"];
+            $providerVehicleModel = $data["providerVehicleModel"];
+
+            $providerVehicleModel->ptv_number = $request->ptvNumber;
+            $providerVehicleModel->save();
+
+            $profileData = Helper::getProviderProfileData($provider);
+
+            return response()->json([
+                'message' => 'Transport Vehicle Certificate have been updated!',
+                'document' => $documentModel,
+                'vehicle' => $providerVehicleModel,
+                'profile' => $profileData
+            ]);
+
+            // } else {
+            //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
+            // }
 
         } catch (ModelNotFoundException $e) {
             return $e;
@@ -726,7 +737,7 @@ class ProfileController extends Controller
             'expiredAt' => 'required|date|after:today',
             'ptdNumber' => 'required|string',
 
-            'file' => 'required|mimes:jpg,jpeg,png,webp,pdf',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf',
         ]);
 
         if ($validator->fails()) {
@@ -740,41 +751,44 @@ class ProfileController extends Controller
 
             $provider = Auth::user();
 
+            // if ($request->hasFile('file')) {
+
+            $documentModel = ProviderDocument::where('provider_id', $provider->id)
+                ->where('document_type', $documentType)
+                ->first();
+
+            if ($documentModel == null) {
+                $documentModel = new ProviderDocument();
+                $documentModel->provider_id = $provider->id;
+                $documentModel->document_type = $documentType;
+                $documentModel->document_id = 0;
+            }
+
             if ($request->hasFile('file')) {
-
-                $documentModel = ProviderDocument::where('provider_id', $provider->id)
-                    ->where('document_type', $documentType)
-                    ->first();
-
-                if ($documentModel == null) {
-                    $documentModel = new ProviderDocument();
-                    $documentModel->provider_id = $provider->id;
-                    $documentModel->document_type = $documentType;
-                    $documentModel->document_id = 0;
-                }
-
                 $fileUrl = Helper::uploadFile($request->file);
                 $documentModel->url = $fileUrl;
-                $documentModel->back_url = null;
-
-                $documentModel->expires_at = $request->expiredAt;
-                $documentModel->status = 'ACTIVE';
-                $documentModel->save();
-
-                $provider->ptd_number = $request->ptdNumber;
-                $provider->save();
-
-                $profileData = Helper::getProviderProfileData($provider);
-
-                return response()->json([
-                    'message' => 'Transport Driver Certificate have been updated!',
-                    'document' => $documentModel,
-                    'profile' => $profileData
-                ]);
-
-            } else {
-                return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             }
+
+            $documentModel->back_url = null;
+
+            $documentModel->expires_at = $request->expiredAt;
+            $documentModel->status = 'ACTIVE';
+            $documentModel->save();
+
+            $provider->ptd_number = $request->ptdNumber;
+            $provider->save();
+
+            $profileData = Helper::getProviderProfileData($provider);
+
+            return response()->json([
+                'message' => 'Transport Driver Certificate have been updated!',
+                'document' => $documentModel,
+                'profile' => $profileData
+            ]);
+
+            // } else {
+            //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
+            // }
 
         } catch (ModelNotFoundException $e) {
             return $e;
