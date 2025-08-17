@@ -51,6 +51,11 @@ class TokenController extends Controller
             $mail = Provider::where('email', '=', $request->email)->first();
             $mobile = Provider::where('mobile', '=', $request->mobile)->first();
             $check_otp = ProviderToken::where('mobile', '=', $request->mobile)->first();
+
+            if (!$check_otp) {
+                return response()->json(['success' => "0", "message" => "Failed to validate OTP, please resend OTP."], 422);
+            } 
+
             if ($mail) {
                 return response()->json(['success' => "0", "message" => "The email has already been taken."], 422);
             }
@@ -178,16 +183,16 @@ class TokenController extends Controller
         $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
         $partner = Provider::where('mobile', '=', $request->mobile)->first();
 
-        if(!$token_user){
+        if (!$token_user) {
             return response()->json(['message' => 'Invalid request, please request OTP again', 'success' => 0], 422);
         }
 
-        if(!$partner){
+        if (!$partner) {
             return response()->json(['message' => 'No Account found', 'success' => 0], 422);
         }
 
         if ($token_user->code != $request->otp) {
-            return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0],  422);
+            return response()->json(['message' => 'The OTP Is Incorrect', 'success' => 0], 422);
             // return response()->json(['message' => 'number 1', 'success' => 0], 200);
 
         }
