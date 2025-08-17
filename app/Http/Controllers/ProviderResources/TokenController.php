@@ -39,7 +39,7 @@ class TokenController extends Controller
             'device_type' => 'required|in:android,ios',
             'device_token' => 'required',
             'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:providers,email,NULL,id,deleted_at,NULL',
+            'email' => 'required|email|max:255',
             'mobile' => 'required|unique:providers,mobile,NULL,id,deleted_at,NULL',
             'dial_code' => 'required',
             'otp' => 'required|exists:provider_tokens,code,mobile,' . $request->mobile,
@@ -62,9 +62,11 @@ class TokenController extends Controller
             if ($mobile) {
                 return response()->json(['success' => "0", "message" => "The mobile has already been taken."], 422);
             }
+
             if ($check_otp->code != $request->otp) {
                 return response()->json(['success' => "0", "message" => "Please enter the correct OTP."], 422);
             }
+
             return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
         }
 
