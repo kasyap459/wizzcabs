@@ -162,7 +162,7 @@ class TokenController extends Controller
 
     public function authenticate(Request $request)
     {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'device_id' => 'required',
             'device_type' => 'required|in:android,ios',
             'device_token' => 'required',
@@ -170,6 +170,10 @@ class TokenController extends Controller
             'otp' => 'required',
             // 'vehicle_no' =>'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first(), "success" => 0], 422);
+        }
 
         $token_user = ProviderToken::where('mobile', '=', $request->mobile)->first();
         $partner = Provider::where('mobile', '=', $request->mobile)->first();
@@ -250,7 +254,7 @@ class TokenController extends Controller
             'dial_code' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['success' => $validator->errors()->first(), "message" => 0], 422);
+            return response()->json(['message' => $validator->errors()->first(), "success" => 0], 422);
         }
 
         // $mobile = Provider::where('mobile', '=', $request->mobile)->first();

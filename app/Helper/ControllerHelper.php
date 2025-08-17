@@ -572,7 +572,10 @@ class Helper
             'mobile',
             'avatar',
             'account_status',
+            'status',
+            'dob',
             'rating',
+            'rating_count',
             'wallet_balance',
 
             'mapping_id',

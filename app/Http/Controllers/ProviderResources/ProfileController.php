@@ -93,47 +93,44 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validate($request, [
-            // 'name' => 'required|max:255',
-            // 'mobile' => 'required',
-            // 'dial_code' => 'required',
-            // 'avatar' => 'mimes:jpeg,bmp,png',
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'email' => 'required|email|max:255',
+            // 'avatar' => 'required',
+            'dob' => 'required',
         ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+        }
+
+        $Provider = Auth::user();
+
+        $mail = Provider::where('email', '=', $request->email)->where('id', '!=', $Provider->id)->first();
+        if ($mail) {
+            return response()->json(['success' => "0", "message" => "The email has already been taken"], 422);
+        }
 
         try {
-
-            $Provider = Auth::user();
 
             if ($request->has('name'))
                 $Provider->name = $request->name;
 
-            if ($request->has('mobile'))
-                $Provider->mobile = $request->mobile;
+            if ($request->has('email'))
+                $Provider->email = $request->email;
 
-            if ($request->has('dial_code'))
-                $Provider->dial_code = $request->dial_code;
+            if ($request->has('dob'))
+                $Provider->dob = $request->dob;
 
-            if ($request->hasFile('avatar')) {
-
-                File::delete(public_path('uploads/provider/profile/' . $Provider->avatar));
-                // Storage::delete($Provider->avatar);
-                // $Provider->avatar = $request->avatar->store('public/provider/profile');
-                // $Provider->avatar = $request->avatar->store('provider/profile');
-                $picture = $request->avatar;
-                $file_name = time();
-                $file_name = rand();
-                $file_name = sha1($file_name);
-                if ($picture) {
-                    $ext = $picture->getClientOriginalExtension();
-                    $picture->move(public_path() . "/uploads/provider/profile/", $file_name . "." . $ext);
-                    $local_url = $file_name . "." . $ext;
-                    $Provider->avatar = url('/') . "/uploads/provider/profile/" . $local_url;
-                }
-            }
+            if ($request->has('avatar'))
+                $Provider->avatar = $request->avatar;
 
             $Provider->save();
 
-            return $Provider;
+            return Helper::getProviderProfileData($Provider);
+
+
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Provider Not Found!'], 404);
         }
@@ -165,17 +162,17 @@ class ProfileController extends Controller
             if ($Provider->account_status == 'approved') {
                 $Provider->update(['status' => 'riding']);
             } else {
-                return response()->json(['error' => 'Su cuenta no ha sido aprobada para conducir.']);
+                return response()->json(['success' => "0", "message" => "Your account has not been approved for driving."], 422);
             }
         } else {
             if ($Provider->account_status == 'approved') {
                 $Provider->update(['status' => $request->service_status, 'active_from' => Carbon::now()]);
             } else {
-                return response()->json(['error' => 'Su cuenta no ha sido aprobada para conducir.']);
+                return response()->json(['success' => "0", "message" => "Your account has not been approved for driving."], 422);
             }
         }
 
-        return $Provider;
+        return Helper::getProviderProfileData($Provider);
     }
 
     /**
@@ -286,10 +283,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => $validator->errors(),
-                'success' => 0
-            ], 422); // 422 Unprocessable Entity
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -335,7 +330,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 200);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -463,7 +459,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -533,7 +530,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -600,7 +598,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -665,7 +664,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
@@ -720,7 +720,7 @@ class ProfileController extends Controller
         }
     }
 
-     public function updateTransportDriverCertificate(Request $request)
+    public function updateTransportDriverCertificate(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'expiredAt' => 'required|date|after:today',
@@ -730,7 +730,8 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+            // return response()->json(['message' => $validator->errors(), 'success' => 0], 422);
         }
 
         try {
