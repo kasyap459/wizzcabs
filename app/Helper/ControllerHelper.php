@@ -614,6 +614,9 @@ class Helper
 
         $provider = json_decode(json_encode($provider), true);
 
+        $provider['accountNoticeMessage'] = 'This message will be added by admin, currently is is dummy.';
+        $provider['fivePassenger'] = true;
+
         $provider['documents'] = [];
 
         $providerDocumentTypes = Helper::PROVIDER_DOCUMENT_TYPES;
