@@ -13,7 +13,7 @@ class AddFivePassengerFieldToProvidersTable extends Migration
      */
     public function up()
     {
-        Schema::table('providers', callback: function (Blueprint $table) {
+        Schema::table('providers',  function (Blueprint $table) {
             $table->integer('five_passenger')->default(0)->nullable();
             $table->string('account_notice', 1000)->nullable();
         });
