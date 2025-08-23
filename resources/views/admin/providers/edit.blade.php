@@ -59,4 +59,34 @@
         $('#allowed_service').val([{{ $provider->allowed_service }}]).trigger('change');
         $('#language').val([{{ $provider->language }}]).trigger('change');
     </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/intlTelInput.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".mobile-int").each(function() {
+                var input = this;
+                var iti = window.intlTelInput(input, {
+                    initialCountry: "in", // default India
+                    separateDialCode: true,
+                    nationalMode: false, // always return full international format
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js"
+                });
+
+                // Save instance on element for later use
+                $(input).data("iti", iti);
+            });
+
+            // On form submit → replace value with full international number
+            $("form").on("submit", function() {
+                $(".mobile-int").each(function() {
+                    var iti = $(this).data("iti");
+                    if (iti) {
+                        $(this).val(iti.getNumber());
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection

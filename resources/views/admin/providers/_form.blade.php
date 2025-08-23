@@ -28,7 +28,7 @@
 <div class="form-group row">
     <label for="mobile" class="col-sm-3 col-form-label">Mobile *</label>
     <div class="col-sm-6">
-        <input id="mobile" name="mobile" type="text" class="form-control @error('mobile') is-invalid @enderror"
+        <input id="mobile" name="mobile" type="text" class="form-control mobile-int @error('mobile') is-invalid @enderror"
             oninput="this.value=this.value.replace(/[^0-9]/g,'');" value="{{ old('mobile', $model->mobile ?? '') }}">
         @error('mobile')
             <div class="invalid-feedback">{{ $message }}</div>

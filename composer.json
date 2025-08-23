@@ -11,6 +11,7 @@
         "edujugon/push-notification": "^4.5",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
+        "giggsey/libphonenumber-for-php": "^8.13",
         "google/apiclient": "^2.16",
         "guzzlehttp/guzzle": "^7.0.1",
         "hesto/multi-auth": "^2.0",

@@ -33,6 +33,9 @@ use App\Models\ProviderShift;
 use App\Models\ProviderDevice;
 use App\Models\ProviderDocument;
 
+use libphonenumber\PhoneNumberUtil;
+use libphonenumber\PhoneNumberFormat;
+
 class ProviderResource extends Controller
 {
     public function __construct(Request $request)
@@ -196,7 +199,7 @@ class ProviderResource extends Controller
             foreach ($providers as $index => $provider) {
                 if ($provider->name != '') {
                     // $first_name = '<a href="'.route('admin.provider.shift', $provider->id ).'">'.$provider->first_name.'</a>';
-                    $first_name = "<div><p class='mb-0'>" . $provider->name . "</p><span class='badge badge-info' title='".$provider->account_notice."'>" . $provider->account_status . "</span></div>";
+                    $first_name = "<div><p class='mb-0'>" . $provider->name . "</p><span class='badge badge-info' title='" . $provider->account_notice . "'>" . $provider->account_status . "</span></div>";
                 } else {
                     $first_name = "";
                 }
@@ -317,7 +320,23 @@ class ProviderResource extends Controller
 
         $provider->name = $providerForm->name;
         $provider->email = $providerForm->email;
-        $provider->mobile = $providerForm->mobile;
+
+        if ($providerForm->mobile) { 
+            try {
+                $phoneUtil = PhoneNumberUtil::getInstance();
+                $numberProto = $phoneUtil->parse($providerForm->mobile, null);
+
+                // Extract country code and national number
+                $provider->dial_code = (string) $numberProto->getCountryCode();
+                $provider->mobile = (string) $numberProto->getNationalNumber();
+
+            } catch (\libphonenumber\NumberParseException $e) {
+                // fallback: store raw value if parsing fails
+                $provider->dial_code = null;
+                $provider->mobile = $providerForm->mobile;
+            }
+        }
+
         $provider->dob = $providerForm->dob;
         $provider->five_passenger = $providerForm->five_passenger;
 
@@ -390,7 +409,7 @@ class ProviderResource extends Controller
 
         $providerVehicleModel->vehicle_name = $request->rego_vehicle;
         $providerVehicleModel->vehicle_no = $request->rego_plate_no;
-        $providerVehicleModel->service_type_id = $request->rego_vehicle_type;
+        $providerVehicleModel->service_type_id = $request->rego_vehicle_type ?? 1;
 
         $providerVehicleModel->save();
 
@@ -647,7 +666,7 @@ class ProviderResource extends Controller
 
                 'name' => $provider->name,
                 'email' => $provider->email,
-                'mobile' => $provider->mobile,
+                'mobile' => $provider->dial_code . "" . $provider->mobile,
                 'dob' => Helper::parseDateToFormInput($provider->dob),
                 'image' => $provider->avatar,
 
@@ -806,8 +825,8 @@ class ProviderResource extends Controller
     public function banned($id)
     {
         $status = $_GET['status'];
-        $message = $_GET['message'] ?? "Account marked as ".$status;
-        
+        $message = $_GET['message'] ?? "Account marked as " . $status;
+
         Provider::where('id', $id)->update([
             'account_status' => $status,
             'account_notice' => $message,
