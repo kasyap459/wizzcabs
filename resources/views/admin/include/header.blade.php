@@ -8,7 +8,7 @@
                 			<i class="material-icons design_bullet-list-67 visible-on-sidebar-mini"><i class="fa fa-list-ul" aria-hidden="true"></i></i>
               			</button>
             		</div>
-              		<a  href="{{ route('admin.dispatch.index') }}" class="btn btn-dribbble"><img src="{{asset('asset/img/dipatch_icon.png')}}">Dispatcher Panel</a>
+              		{{-- <a  href="{{ route('admin.dispatch.index') }}" class="btn btn-dribbble"><img src="{{asset('asset/img/dipatch_icon.png')}}">Dispatcher Panel</a> --}}
               		<a  href="{{ route('admin.main') }}" class="btn btn-dribbble"><img src="{{asset('asset/img/trip_icon.png')}}">Trip List</a>
           	</div>
 		<div class="navbar-wrapper">

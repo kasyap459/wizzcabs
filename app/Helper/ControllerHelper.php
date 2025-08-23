@@ -583,7 +583,10 @@ class Helper
             'license_no',
             'license_expire',
 
-            'ptd_number'
+            'ptd_number',
+
+            'account_notice',
+            'five_passenger'
 
         )->first();
 
@@ -591,7 +594,7 @@ class Helper
             'vehicle_no',
             'vehicle_name',
             'service_type_id',
-            
+
             'insurance_no',
             'insurance_exp',
 
@@ -612,10 +615,10 @@ class Helper
 
         $providerId = $provider->id;
 
-        $provider = json_decode(json_encode($provider), true);
+        $provider['accountNoticeMessage'] = $provider->account_notice;
+        $provider['fivePassenger'] = (string) $provider->five_passenger === "1" ? true : false;
 
-        $provider['accountNoticeMessage'] = 'This message will be added by admin, currently is is dummy.';
-        $provider['fivePassenger'] = true;
+        $provider = json_decode(json_encode($provider), true);
 
         $provider['documents'] = [];
 
@@ -638,7 +641,7 @@ class Helper
         }
 
         $provider['stats'] = [
-            'walletBalance'=> $provider['wallet_balance'],
+            'walletBalance' => $provider['wallet_balance'],
 
             'totalHours' => 0,
             'totalDistance' => 0,
@@ -679,6 +682,18 @@ class Helper
             'provider' => $provider,
             'providerVehicleModel' => $providerVehicleModel
         ];
+    }
+
+    public static function parseDateToFormInput($date)
+    {
+        if ($date) {
+            try {
+                return Carbon::parse($date)->format('Y-m-d'); // ✅ ensures correct format
+            } catch (\Exception $e) {
+                return ''; // if parsing fails, return empty string
+            }
+        }
+        return '';
     }
 
 }

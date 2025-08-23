@@ -68,7 +68,10 @@ class Provider extends Authenticatable implements JWTSubject
         'cash_earnings',
         'total_earnings',
 
-        'ptd_number'
+        'ptd_number',
+
+        'five_passenger',
+        'account_notice'
 
     ];
 
