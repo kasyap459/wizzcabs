@@ -18,19 +18,20 @@ Route::post('/register', 'ProviderResources\TokenController@register');
 Route::post('/mobile', 'ProviderResources\TokenController@send_mobile');
 Route::post('/oauth/token', 'ProviderResources\TokenController@authenticate');
 Route::post('/logout', 'ProviderResources\TokenController@logout');
-Route::post('/send_otp', 'ProviderResources\TokenController@send_otp');
+
+// Route::post('/send_otp', 'ProviderResources\TokenController@send_otp');
 
 Route::get('/configuration', 'ProviderResources\TokenController@configuration');
-
 Route::post('/upload-file', [UserLoginApiController::class, 'upload_file']);
 
-Route::post('/forgot/password', 'ProviderResources\TokenController@forgot_password');
-Route::post('/reset/password', 'ProviderResources\TokenController@reset_password');
-Route::get('/help', 'ProviderResources\TokenController@help_details');
-Route::get('/testpushnotification', 'ProviderResources\TripController@testpushnotificationsss');
-Route::get('/mapkey', 'ProviderResources\TripController@map_key');
+// Route::post('/forgot/password', 'ProviderResources\TokenController@forgot_password');
+// Route::post('/reset/password', 'ProviderResources\TokenController@reset_password');
+// Route::get('/help', 'ProviderResources\TokenController@help_details');
+// Route::get('/testpushnotification', 'ProviderResources\TripController@testpushnotificationsss');
+// Route::get('/mapkey', 'ProviderResources\TripController@map_key');
 
 Route::group(['middleware' => ['provider.api']], function () {
+
     Route::group(['prefix' => 'profile'], function () {
 
         Route::get('/', 'ProviderResources\ProfileController@index');
@@ -43,18 +44,25 @@ Route::group(['middleware' => ['provider.api']], function () {
         Route::post('/update-transport-driver-certificate', 'ProviderResources\ProfileController@updateTransportDriverCertificate');
 
         Route::post('/save-bank-details', 'ProviderResources\ProfileController@saveBankDetails');
+        Route::post('/test-notification', 'ProviderResources\ProfileController@testNotification');
+        Route::get('/notifications', 'ProviderResources\ProfileController@getNotifications');
 
-        Route::post('/', 'ProviderResources\ProfileController@update');
-        Route::post('/password', 'ProviderResources\ProfileController@password');
-        Route::post('/available', 'ProviderResources\ProfileController@available');
+        // Route::post('/', 'ProviderResources\ProfileController@update');
+        // Route::post('/password', 'ProviderResources\ProfileController@password');
+        // Route::post('/available', 'ProviderResources\ProfileController@available');
 
-        Route::post('/upload', 'ProviderResources\ProfileController@upload_document');
-        Route::post('/delete', 'ProviderResources\ProfileController@destroy_document');
-        Route::get('/getdocuments', 'ProviderResources\ProfileController@get_documents');
+        // Route::post('/upload', 'ProviderResources\ProfileController@upload_document');
+        // Route::post('/delete', 'ProviderResources\ProfileController@destroy_document');
+        // Route::get('/getdocuments', 'ProviderResources\ProfileController@get_documents');
+
     });
 
     Route::get('/wallet/history', 'ProviderResources\ProfileController@provider_wallet_history');
-    Route::get('/pushNotification', 'ProviderResources\TripController@pushNotification');
+    
+    Route::post('/cashout/request', 'ProviderResources\TripController@cashout_request');
+    Route::get('/cashout/list', 'ProviderResources\TripController@cashout_list');
+    
+    // Route::get('/pushNotification', 'ProviderResources\TripController@pushNotification');
     Route::post('/streetride/request', 'ProviderResources\StreetController@streetride_request');
     Route::post('/additional/fare', 'ProviderResources\TripController@additional_fare');
     Route::post('/payment/update', 'ProviderResources\TripController@payment_update');
@@ -67,8 +75,7 @@ Route::group(['middleware' => ['provider.api']], function () {
     Route::post('/contact/add', 'ProviderResources\TripController@add_contact');
     Route::post('/contact/delete', 'ProviderResources\TripController@delete_contact');
 
-    Route::post('/cashout/request', 'ProviderResources\TripController@cashout_request');
-    Route::get('/cashout/list', 'ProviderResources\TripController@cashout_list');
+    
     Route::post('/delete', 'ProviderResources\TokenController@delete');
 
     Route::group(['prefix' => 'requests'], function () {

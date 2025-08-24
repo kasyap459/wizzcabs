@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ProviderResources;
 
 use App\Helpers\Helper;
+use App\Models\MemberNotification;
 use App\Models\ProviderBankDetail;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -442,10 +443,20 @@ class ProfileController extends Controller
         }
     }
 
-    public function provider_wallet_history()
+    public function provider_wallet_history(Request $request)
     {
-        $data = ProviderWallet::where('provider_id', Auth::user()->id)->select('amount', 'mode', 'created_at as created')->orderBy('created_at', 'DESC')->get()->toArray();
-        return response()->json(['data' => $data, 'currency' => Setting::get('currency'), 'wallet_balance' => Auth::user()->wallet_balance], 200);
+        // limit per page, default 25
+        $limit = $request->input('limit', 25);
+
+        $data = ProviderWallet::where('provider_id', Auth::id())
+            ->orderBy('created_at', 'DESC')
+            ->paginate($limit);
+
+        return response()->json([
+            'data' => $data,
+            'currency' => Setting::get('currency'),
+            'wallet_balance' => Auth::user()->wallet_balance,
+        ], 200);
     }
 
 
@@ -515,8 +526,12 @@ class ProfileController extends Controller
             //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             // }
 
-        } catch (ModelNotFoundException $e) {
-            return $e;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
         }
     }
 
@@ -589,8 +604,12 @@ class ProfileController extends Controller
             //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             // }
 
-        } catch (ModelNotFoundException $e) {
-            return $e;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
         }
     }
 
@@ -657,8 +676,12 @@ class ProfileController extends Controller
             //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             // }
 
-        } catch (ModelNotFoundException $e) {
-            return $e;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
         }
     }
 
@@ -726,8 +749,12 @@ class ProfileController extends Controller
             //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             // }
 
-        } catch (ModelNotFoundException $e) {
-            return $e;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
         }
     }
 
@@ -790,10 +817,61 @@ class ProfileController extends Controller
             //     return response()->json(['message' => "Documents not found", 'success' => 0], 422);
             // }
 
-        } catch (ModelNotFoundException $e) {
-            return $e;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
         }
     }
 
+    public function testNotification(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => "0", "message" => $validator->errors()->first()], 422);
+        }
+
+        try {
+            $provider = Auth::user();
+
+            MemberNotification::create([
+                'person_id' => $provider->id,
+                'title' => $request->title,
+                'message' => $request->message,
+                'member' => 'driver',
+                'notification_type' => 'push'
+            ]);
+
+            return response()->json([
+                'message' => 'Test Notification created'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error while processing your request',
+                'details' => $e->getMessage(),
+                'success' => 0
+            ], 500);
+        }
+    }
+
+    public function getNotifications(Request $request)
+    {
+        $limit = $request->input('limit', 25);
+
+        $pushMsg = MemberNotification::where('person_id', Auth::id())
+            ->where('member', 'driver')
+            ->paginate($limit);
+
+        return response()->json([
+            'data' => $pushMsg
+        ]);
+    }
 
 }

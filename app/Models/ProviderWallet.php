@@ -14,7 +14,9 @@ class ProviderWallet extends Model
         'trip_id',
         'amount',
         'mode',
-        'status'
+        'status',
+        'cashout_id',
+        'transaction_type'
     ];
 
     /**
